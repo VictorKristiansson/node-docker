@@ -1,0 +1,31 @@
+{
+  "name": "nodedocker",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon --watch './**/*.ts' --exec tsx server.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VictorKristiansson/node-docker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VictorKristiansson/node-docker/issues"
+  },
+  "homepage": "https://github.com/VictorKristiansson/node-docker#readme",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.6"
+  }
+}
