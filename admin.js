@@ -38,6 +38,26 @@ app.post("/players", async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
+app.put("/players/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    const result = await pool.query(
+      "UPDATE players SET name = $1 WHERE player_id = $2 RETURNING *",
+      [name, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Player not found" });
+    }
+
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.listen(PORT, () => {
   console.log(`Server is running on PORT ${PORT}`);
 });
