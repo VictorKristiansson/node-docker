@@ -25,6 +25,19 @@ app.get("/", async (req, res) => {
   }
 });
 
+app.post("/players", async (req, res) => {
+  try {
+    const { name } = req.body;
+    const result = await pool.query(
+      "INSERT INTO players (name) VALUES ($1) RETURNING *",
+      [name]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json(error.message);
+  }
+});
+
 app.listen(3000, () => {
   console.log(`Server is running on PORT ${PORT}`);
 });
