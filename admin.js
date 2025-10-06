@@ -2,6 +2,8 @@
 import express from "express";
 import pg from "pg";
 import dotenv from "dotenv";
+
+// Port
 const PORT = 3000;
 
 // .env and app setup
@@ -18,13 +20,46 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
 });
 
-// Get all players
+// Get all players (just their names)
 app.get("/", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM players");
     res.status(200).json(result.rows);
   } catch (error) {
-    res.status(500).json(error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get all players with their scores
+app.get("/players-scores", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT players.name, games.title, scores.score
+      FROM scores
+      JOIN players ON scores.player_id = players.player_id
+      JOIN games ON scores.game_id = games.game_id
+    `);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get high scores
+app.get("/top-players", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT players.name, games.title, scores.score
+      FROM scores
+      JOIN players ON scores.player_id = players.player_id
+      JOIN games ON scores.game_id = games.game_id
+      ORDER BY score DESC
+
+      LIMIT 3;
+    `);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -38,7 +73,7 @@ app.post("/players", async (req, res) => {
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
-    res.status(500).json(error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -71,16 +106,18 @@ app.delete("/players/:id", async (req, res) => {
       "DELETE FROM players WHERE player_id = $1 RETURNING *",
       [id]
     );
+
     if (result.rows.length === 0) {
       return res.status(404).json({ message: "No players found!" });
     }
+
+    res.status(200).json({ message: "Player deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-  res.status(200).json({ message: "Player deleted successfully" });
 });
 
-// start server
+// Start server
 app.listen(PORT, () => {
   console.log(`Server is running on PORT ${PORT}`);
 });

@@ -3,3 +3,5 @@ CREATE TABLE players (
   name VARCHAR(50) NOT NULL, 
   join_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP 
   );
+
+  
