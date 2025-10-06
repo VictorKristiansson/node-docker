@@ -64,6 +64,21 @@ app.put("/players/:id", async (req, res) => {
 });
 
 // Delete a player
+app.delete("/players/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      "DELETE FROM players WHERE player_id = $1 RETURNING *",
+      [id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "No players found!" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+  res.status(200).json({ message: "Player deleted successfully" });
+});
 
 // start server
 app.listen(PORT, () => {
