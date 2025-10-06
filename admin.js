@@ -79,6 +79,40 @@ app.get("/inactive-players", async (req, res) => {
   }
 });
 
+// Find popular game genres
+app.get("/popular-genres", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT games.genre, COUNT(*) 
+      FROM scores
+      JOIN games ON scores.game_id = games.game_id
+      GROUP BY games.genre
+      ORDER BY COUNT(*) DESC
+      LIMIT 2;
+    `);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Find recently joined players
+app.get("/recent-players", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT players.name, players.join_date
+      FROM players
+
+      -- AI helped me with INTERVAL to filter the last 30 days instead of just today
+      WHERE join_date >= CURRENT_DATE - INTERVAL '30 days'
+      ORDER BY join_date DESC;
+    `);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Add a new player
 app.post("/players", async (req, res) => {
   try {
