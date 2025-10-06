@@ -1,14 +1,16 @@
+// Imports
 import express from "express";
 import pg from "pg";
 import dotenv from "dotenv";
 const PORT = 3000;
 
+// .env and app setup
 dotenv.config();
 const app = express();
 const { Pool } = pg;
-
 app.use(express.json());
 
+// Database connection
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
@@ -16,6 +18,7 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
 });
 
+// Get all players
 app.get("/", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM players");
@@ -25,6 +28,7 @@ app.get("/", async (req, res) => {
   }
 });
 
+// Add a new player
 app.post("/players", async (req, res) => {
   try {
     const { name } = req.body;
@@ -38,6 +42,7 @@ app.post("/players", async (req, res) => {
   }
 });
 
+// Update a player's name
 app.put("/players/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -58,6 +63,9 @@ app.put("/players/:id", async (req, res) => {
   }
 });
 
+// Delete a player
+
+// start server
 app.listen(PORT, () => {
   console.log(`Server is running on PORT ${PORT}`);
 });
