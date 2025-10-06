@@ -16,8 +16,13 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
 });
 
-app.get("/", (req, res) => {
-  res.send("Welcome to this NodeJS and PostgreSQL lesson.");
+app.get("/", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM players");
+    res.status(200).json(result.rows);
+  } catch (error) {
+    res.status(500).json(error.message);
+  }
 });
 
 app.listen(3000, () => {
