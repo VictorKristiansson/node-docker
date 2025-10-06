@@ -63,6 +63,22 @@ app.get("/top-players", async (req, res) => {
   }
 });
 
+// Get players with no games played
+app.get("/inactive-players", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT players.name
+      FROM players
+      LEFT OUTER JOIN scores
+      ON players.player_id = scores.player_id
+      WHERE scores.score IS NULL;
+    `);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Add a new player
 app.post("/players", async (req, res) => {
   try {
