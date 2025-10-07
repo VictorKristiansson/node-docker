@@ -2,9 +2,19 @@
 import express from "express";
 import pg from "pg";
 import dotenv from "dotenv";
+import { z } from "zod";
 
 // Port
 const PORT = 3000;
+
+// player schema
+const playerSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, "Name is required")
+    .max(50, "Name is too long"),
+});
 
 // .env and app setup
 dotenv.config();
@@ -115,8 +125,12 @@ app.get("/recent-players", async (req, res) => {
 
 // Add a new player
 app.post("/players", async (req, res) => {
+  const validatedPlayer = playerSchema.safeParse(req.body);
+  if (!validatedPlayer.success) {
+    return res.status(400).json({ errors: validatedPlayer.error.errors });
+  }
   try {
-    const { name } = req.body;
+    const { name } = validatedPlayer.data;
     const result = await pool.query(
       "INSERT INTO players (name) VALUES ($1) RETURNING *",
       [name]
@@ -129,9 +143,14 @@ app.post("/players", async (req, res) => {
 
 // Update a player's name
 app.put("/players/:id", async (req, res) => {
+  const validatedPlayer = playerSchema.safeParse(req.body);
+  if (!validatedPlayer.success) {
+    return res.status(400).json({ errors: validatedPlayer.error.errors });
+  }
+
   try {
     const { id } = req.params;
-    const { name } = req.body;
+    const { name } = validatedPlayer.data;
 
     const result = await pool.query(
       "UPDATE players SET name = $1 WHERE player_id = $2 RETURNING *",
